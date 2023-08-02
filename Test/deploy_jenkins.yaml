@@ -1,0 +1,88 @@
+---
+- name: Deploy Jenkins with Configuration as Code
+  hosts: localhost
+  become: true
+
+  vars:
+    JENKINS_URL: "http://127.0.0.1:8080"
+    JENKINS_USERNAME: "admin"
+    JENKINS_PASSWORD: "password"
+    PLUGINS_FILE: "jenkins_config/plugins.txt"
+
+  tasks: 
+    - name: Set Jenkins environment variables in systemd
+      become: yes
+      ini_file:
+        path: /etc/systemd/system/jenkins.service.d/environment.conf
+        section: Service
+        option: Environment
+        value: 'JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.DISABLE_CSRF_PROTECTION=true"'
+
+    - name: Reload systemd daemon to apply the changes
+      become: yes
+      command: "systemctl daemon-reload"
+
+    - name: Start Jenkins service
+      become: yes
+      service:
+        name: jenkins
+        state: restarted
+
+    - name: Sleep for 30 seconds
+      wait_for:
+        timeout: 30
+      delegate_to: localhost
+
+    - name: Download Jenkins CLI jar
+      ansible.builtin.get_url:
+        url: {{ JENKINS_URL }}/jnlpJars/jenkins-cli.jar
+        dest: /home/vagrant/jenkins_config/jenkins-cli.jar
+
+    - name: Install Jenkins plugins
+      become: yes
+      shell: /usr/bin/java -jar /home/vagrant/jenkins_config/jenkins-cli.jar -s "{{ JENKINS_URL }}" -auth "{{ JENKINS_USERNAME }}:{{ JENKINS_PASSWORD }}" install-plugin "{{ item }}" -deploy
+      with_lines: "cat {{ plugins_file }}"
+      ignore_errors: yes
+
+    - name: Ensure /var/lib/jenkins/jenkins-casc/ directory exists
+      become: yes
+      file:
+        path: /var/lib/jenkins/jenkins-casc/
+        state: directory
+        owner: jenkins
+        group: jenkins
+        mode: '0755'
+
+    - name: Copy casc.yaml to Jenkins server
+      copy:
+        src: /vagrant/jenkins_config/casc.yaml
+        dest: /var/lib/jenkins/jenkins-casc/casc.yaml
+        owner: jenkins
+        group: jenkins
+        mode: '0644'
+
+    - name: Start Jenkins service
+      become: yes
+      service:
+        name: jenkins
+        state: restarted
+
+    - name: Read Job Configuration from File
+      slurp:
+        path: "jenkins_config/pc_job.xml"
+      register: job_config_content
+
+    - name: Create Jenkins Job
+      jenkins_build:
+        server_url: "{{ JENKINS_URL }}"
+        user: "{{ JENKINS_USERNAME }}"
+        password: "{{ JENKINS_PASSWORD }}"
+        job_name: "{{ JOB_NAME }}"
+        config: "{{ job_config_content['content'] | b64decode }}"
+        create: yes
+        validate_certs: no
+      register: result
+
+    - name: Check Jenkins Job Creation Status
+      debug:
+        var: result

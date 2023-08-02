@@ -1,0 +1,81 @@
+Vagrant.configure("2") do |config|
+    # Configure the First VM (SonarQube)
+    config.vm.define "sonarqube" do |sonarqube|
+      sonarqube.vm.box = "ubuntu/focal64"
+      sonarqube.vm.hostname = "sonarqube"
+      sonarqube.vm.network "forwarded_port", guest: 9000, host: 9000
+  
+      # Configure VM resources
+      sonarqube.vm.provider "virtualbox" do |vb|
+        vb.gui = false
+        vb.cpus = 2
+        vb.memory = "4096"
+      end
+  
+      # Install SonarQube
+      sonarqube.vm.provision "shell" do inline: <<-SHELL
+        sudo apt update
+        sudo apt upgrade -y
+        curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+        echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+        sudo apt-get update
+        sudo apt-get install -y ansible openjdk-11-jdk 
+        sudo apt-get update && apt-get install -y sonarqube
+      SHELL
+    end
+  end
+
+    # Configure the Second VM (Jenkins)
+    config.vm.define "jenkins" do |jenkins|
+        jenkins.vm.box = "ubuntu/focal64"
+        jenkins.vm.hostname = "jenkins"
+        jenkins.vm.network "forwarded_port", guest: 8080, host: 8080
+
+    # Configure VM resources
+    jenkins.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.cpus = 2
+      vb.memory = "4096"
+    end
+  
+    jenkins.vm.provision "shell", inline: <<-SHELL
+      # Install Ansible on the control node
+      sudo apt update
+      sudo apt upgrade -y
+      curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+      echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+      sudo apt-get update
+      sudo apt-get install -y ansible openjdk-17-jdk jenkins
+      sudo ansible-galaxy collection install community.general
+  
+      # Copy the Ansible playbook and required files from the host to the control node
+      cp -r /vagrant/* /home/vagrant/
+      chown -R vagrant:vagrant /home/vagrant
+
+      # Deploy Jenkins
+      export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+      ansible-playbook /home/vagrant/deploy_jenkins.yaml -u vagrant
+      #sudo ./install_plugins.sh -- DEPRECATED
+    SHELL
+  end
+
+  # Configure the second VM (SonarQube)
+  config.vm.define "sonarqube" do |sonarqube|
+    sonarqube.vm.box = "ubuntu/focal64"
+    sonarqube.vm.hostname = "sonarqube"
+    sonarqube.vm.network "forwarded_port", guest: 9000, host: 9000
+
+    # Configure VM resources
+    sonarqube.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.cpus = 2
+      vb.memory = "4096"
+    end
+
+    # Install SonarQube
+    sonarqube.vm.provision "shell" do |shell|
+      shell.inline = "apt-get update && apt-get install -y sonarqube"
+    end
+  end
+end
+  

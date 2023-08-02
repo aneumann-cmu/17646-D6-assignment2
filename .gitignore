@@ -1,14 +1,1 @@
-.vagrant/machines/jenkins/virtualbox/action_provision
-.vagrant/machines/jenkins/virtualbox/action_set_name
-.vagrant/machines/jenkins/virtualbox/box_meta
-.vagrant/machines/jenkins/virtualbox/creator_uid
-.vagrant/machines/jenkins/virtualbox/id
-.vagrant/machines/jenkins/virtualbox/index_uuid
-.vagrant/machines/jenkins/virtualbox/private_key
-.vagrant/machines/jenkins/virtualbox/synced_folders
-.vagrant/machines/jenkins/virtualbox/vagrant_cwd
-.vagrant/machines/sonarqube/virtualbox/action_set_name
-.vagrant/machines/sonarqube/virtualbox/creator_uid
-.vagrant/machines/sonarqube/virtualbox/id
-.vagrant/machines/sonarqube/virtualbox/index_uuid
-.vagrant/machines/sonarqube/virtualbox/vagrant_cwd
+.vagrant/
