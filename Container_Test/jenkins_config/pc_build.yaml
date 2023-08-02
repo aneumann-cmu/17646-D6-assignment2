@@ -1,0 +1,35 @@
+---
+- name: Create Jenkins API token and secret text credential
+  hosts: localhost
+  gather_facts: false
+  vars:
+    JENKINS_URL: "http://127.0.0.1:8080"
+    SONARQUBE_URL: "http://127.0.0.1:9000"
+    JENKINS_USERNAME: "admin"
+    JENKINS_PASSWORD: "password"
+
+  tasks: 
+    - name: Trigger Jenkins job
+      uri:
+        url: "{{ JENKINS_URL }}/job/{{ JOB_NAME }}/build"
+        method: POST
+        user: "{{ JENKINS_USERNAME }}"
+        password: "{{ API_TOKEN }}"
+        status_code: 201
+      register: trigger_result
+      until: trigger_result.status == 201
+      retries: 10
+      delay: 10
+      ignore_errors: yes
+
+    - name: Check build status
+      uri:
+        url: "{{ JENKINS_URL }}/job/{{ JOB_NAME }}/lastBuild/api/json"
+        user: "{{ JENKINS_USERNAME }}"
+        password: "{{ API_TOKEN }}"
+        return_content: yes
+      register: build_status_result
+      until: build_status_result.json.result in ['SUCCESS', 'FAILURE']
+      retries: 30
+      delay: 10
+      ignore_errors: yes

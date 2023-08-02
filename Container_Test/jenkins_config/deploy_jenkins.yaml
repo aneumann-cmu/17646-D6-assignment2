@@ -1,0 +1,43 @@
+---
+- name: Deploy Jenkins with Configuration as Code
+  hosts: localhost
+  become: true
+
+  vars:
+    JENKINS_URL: "http://127.0.0.1:8080"
+    JENKINS_USERNAME: "admin"
+    JENKINS_PASSWORD: "password"
+    PLUGINS_FILE: "plugins.txt"
+    JOB_FILE: "jenkins_config/pc_job.xml"
+
+  tasks: 
+
+    - name: Sleep for 30 seconds
+      wait_for:
+        timeout: 30
+      delegate_to: localhost
+
+    - name: Download Jenkins CLI jar
+      ansible.builtin.get_url:
+        url: {{ JENKINS_URL }}/jnlpJars/jenkins-cli.jar
+        dest: /home/vagrant/jenkins_config/jenkins-cli.jar
+
+    - name: Read content of pc_job.xml
+      slurp:
+        path: "{{ JOB_FILE }}"
+      register: job_config_content
+
+    - name: Create Jenkins Job
+      jenkins_build:
+        server_url: "{{ JENKINS_URL }}"
+        user: "{{ JENKINS_USERNAME }}"
+        password: "{{ JENKINS_PASSWORD }}"
+        job_name: "{{ JOB_NAME }}"
+        config: "{{ job_config_content['content'] | b64decode }}"
+        create: yes
+        validate_certs: no
+      register: result
+
+    - name: Check Jenkins Job Creation Status
+      debug:
+        var: result
