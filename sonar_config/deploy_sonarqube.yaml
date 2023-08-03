@@ -16,6 +16,11 @@
       until: sonarqube_status.rc == 0 and sonarqube_status.stdout | from_json | json_query('status') == 'UP'
       ignore_errors: yes
 
+    - name: Display SonarQube status message
+      debug:
+        msg: "Waiting for SonarQube to be up, please standby ({{ 20 - sonarqube_status.retries }} retries left)"
+      when: sonarqube_status is failed
+
     - name: Set SonarQube admin password using curl
       shell: >
         curl -s -vu "{{ SONARQUBE_ADMIN_USERNAME}}:admin" -o /dev/null -X POST "{{ SONARQUBE_URL }}/api/users/change_password?login={{ SONARQUBE_ADMIN_USERNAME }}&previousPassword=admin&password={{ SONARQUBE_ADMIN_PASSWORD }}"

@@ -35,6 +35,11 @@
       until: build_status_result.json.result | default('') == "SUCCESS"
       ignore_errors: yes
 
+    - name: Display build status message
+      debug:
+        msg: "Waiting for Build to Complete, please standby ({{ 60 - build_status_result.retries }} retries left)"
+      when: build_status_result is failed
+
     - name: Print Access URL
       debug:
         msg: "PetClinic Deployed, access at http://localhost:8085"
