@@ -1,0 +1,31 @@
+- name: Generate SSH Keys
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Generate SSH key pair
+      command: ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ""
+
+    - name: Get the hostname
+      shell: hostname
+      register: hostname_result
+      changed_when: false
+
+    - name: Copy SSH public key to user's home directory
+      ansible.builtin.copy:
+        src: "~/.ssh/id_rsa"
+        dest: "~/ansible_config/shared_ssh_keys/{{ hostname_result.stdout }}_id_rsa"
+      delegate_to: localhost
+
+    - name: Copy SSH public key to user's home directory
+      ansible.builtin.copy:
+        src: "~/.ssh/id_rsa.pub"
+        dest: "~/ansible_config/shared_ssh_keys/{{ hostname_result.stdout }}_id_rsa.pub"
+      delegate_to: localhost
+
+    - name: Set correct permissions for jenkins_id_rsa
+      file:
+        path: "/root/ansible_config/shared_ssh_keys/{{ hostname_result.stdout }}_id_rsa"
+        owner: root
+        group: root
+        mode: "0600"
+      delegate_to: localhost

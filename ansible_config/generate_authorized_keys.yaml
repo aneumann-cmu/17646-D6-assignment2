@@ -1,0 +1,13 @@
+- name: Generate Authorized Keyfile
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Create authorized_keys file
+      ansible.builtin.file:
+        path: ~/.ssh/authorized_keys
+        state: touch
+        mode: "0600"
+
+    - name: Concatenate all SSH public keys into authorized_keys
+      ansible.builtin.shell: cat ~/ansible_config/shared_ssh_keys/*_id_rsa.pub >> ~/.ssh/authorized_keys
+      ignore_errors: yes
