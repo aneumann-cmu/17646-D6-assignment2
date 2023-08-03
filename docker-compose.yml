@@ -57,11 +57,6 @@ services:
       - POSTGRES_PASSWORD=sonar
       - POSTGRES_DB=sonarqube
 
-  pc:
-    image: openjdk:17-jdk-slim
-    networks:
-      -devnet
-
 networks:
   devnet:
     driver: bridge

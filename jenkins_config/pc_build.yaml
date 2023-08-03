@@ -30,24 +30,7 @@
         password: "{{ JENKINS_PASSWORD }}"
         return_content: yes
       register: build_status_result
-      retries: 30
-      delay: 10
-      until: build_status_result is succeeded
-      ignore_errors: yes
-
-    - name: Display build status
-      debug:
-        msg: "Build is still in progress."
-      when: build_status_result.json.building | bool | default(false) and build_status_result.json.inProgress | bool | default(true)
       retries: 60
       delay: 10
-      until: not(build_status_result.json.building | bool | default(false) and build_status_result.json.inProgress | bool | default(true))
-
-    - name: Build is complete
-      debug:
-        msg: "Build is complete."
-      when: not(build_status_result.json.building | bool | default(false) and build_status_result.json.inProgress | bool | default(true))
-
-
-
-
+      until: build_status_result.json.result | default('') == "SUCCESS"
+      ignore_errors: yes
