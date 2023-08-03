@@ -60,14 +60,14 @@ unzip 17646-D6-assignment2.zip
 --OR--  
 git clone https://github.com/aneumann-cmu/17646-D6-assignment2.git  
   
-cd 17646-D6-assignment1  
+cd 17646-D6-assignment2  
 sudo ./devops-pl.sh  
 
 ## Step 3. Open and View Jenkins Pipeline ##
 The Jenkins CI job may be viewed in Jenkins by opening Firefox and going to http://localhost:8080
 
 ## Step 4. Open and View Sonarqube Analysis ##
-The Sonarqube SAST may be viewed in Sonarqube by opening Firefox and going to http://localhost:9000 and using Username: admin + Password: password to login
+The Sonarqube SAST may be viewed in Sonarqube by opening Firefox and going to http://localhost:9000 and using Username: admin and Password: password to login
 
 ## Step 5. Open and View PetClinic App ##
 The PetClinic App may be viewed by opening Firefox and going to http://localhost:8085  
@@ -83,7 +83,7 @@ pc_deploy/pc_deploy.yaml, sonar_config/deploy_sonarqube.yaml, jenkins_config/pc_
 screenshots/19. PETCLINIC_WELCOME.png
 
 # Journal  
-The most challenging part of this assignment was setting up the SSH keys and deploying them on each host using automation. In the end, I accomplished this using a shared docker volume so that the containers could post/copy their ssh keys to/from a shared repository. This likely would have been much easier to implement with some sort of token vault, but it would have required much more setup that was outside of the scope of an MVP. 
+The most challenging part of this assignment was setting up the SSH keys and deploying them on each host using automation. In the end, I accomplished this using a shared docker volume so that the containers could post/copy their ssh keys to/from a shared repository. This likely would have been much easier to implement with some sort of token vault, but similarly to the last project, it would have required much more setup that was outside of the scope of an MVP. 
 
 # Text Capture
-Relevant CLI Screenshots  1. CHANGE_DIRECTORY.png, 2. RUN_SCRIPT.png, 3. CREATING_CONTAINERS.png, 4. SETTING_UP_ENV.png, 9. JAR_DOWNLOAD.png, 10. PETCLINIC_DEPLOYED.png
+Relevant CLI Screenshots  1.0 EXECUTE_DEVOPS_SCRIPT.png, 2.0 CONTAINER_BUILD.png, 3.0 ANSIBLE_CONFIG_DEPLOY.png, 4.0 PC_BUILD_IN_PROGRESS.png, 6.1 PC_BUILD_COMPLETE.png, 9.0 PETCLINIC_WELCOME.png
