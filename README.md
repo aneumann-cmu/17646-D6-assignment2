@@ -82,6 +82,25 @@ pc_deploy/pc_deploy.yaml, sonar_config/deploy_sonarqube.yaml, jenkins_config/pc_
 # Screenshot of Petclinic Welcome Screen
 screenshots/19. PETCLINIC_WELCOME.png
 
+# Ansible Deployment Playbooks
+inventory.yaml - Define Ansible hosts
+sonar_config/deploy_sonarqube.yaml - Setup Sonarqube Token on SonarQube
+jenkins_config/configure_jenkins.yaml - Setup Sonarqube Token on Jenkins
+generate_ssh_keys.yaml - Setup Ansible SSH communication
+generate_authorized_keys.yaml - Setup Ansible SSH communication
+jenkins_config/deploy_jenkins.yaml - Deploy job
+jenkins_config/pc_build.yaml - Trigger build
+pc_deploy/pc_deploy.yaml - Deploy built PetClinic jar file
+
+# Provisioning Files
+docker-compose.yml - Setup docker environment and build containers
+jenkins_config/Dockerfile - Jenkins container settings
+jenkins_config/plugins.txt - Plugin list for Jenkins
+jenkins_config/casc.yaml - Jenkins config settings
+jenkins_config/pc_job.xml - Petclinic job pipeline
+pc_deploy/pc_service.sh - Petclinic execution file
+devops-pl.sh - Main executable to build/configure containers/services, submit/build/deploy Pet Clinic App
+
 # Journal  
 The most challenging part of this assignment was setting up the SSH keys and deploying them on each host using automation. In the end, I accomplished this using a shared docker volume so that the containers could post/copy their ssh keys to/from a shared repository. This likely would have been much easier to implement with some sort of token vault, but similarly to the last project, it would have required much more setup that was outside of the scope of an MVP. 
 
