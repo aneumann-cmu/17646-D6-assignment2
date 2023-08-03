@@ -1,23 +1,20 @@
----
-- name: Download and Deploy Petclinic App to pcapp
+- name: Deploy and Run Petclinic App
   hosts: pcapp
   gather_facts: false
-  environment:
-    ANSIBLE_HOST_KEY_CHECKING: "False"
   tasks:
     - name: Download Petclinic.jar
-      shell: "curl http://jenkins:8080//job/PetClinicBuild/1/artifact/target/spring-petclinic-3.1.0-SNAPSHOT.jar -o ~/spring-petclinic-3.1.0-SNAPSHOT.jar"
+      shell: "curl http://jenkins:8080//job/PetClinicBuild/1/artifact/target/spring-petclinic-3.1.0-SNAPSHOT.jar -o /root/spring-petclinic-3.1.0-SNAPSHOT.jar"
       args:
         warn: false
 
     - name: Start PetClinic Application
-      command: "/usr/bin/java -jar /root/spring-petclinic-3.1.0-SNAPSHOT.jar --server.port=8085 &"
+      command: "/root/pc_deploy/pc_service.sh"
       async: 0
       poll: 0
 
     - name: Wait for PetClinic Application to Start
       wait_for:
-        host: pcapp
+        host: localhost
         port: 8085
         timeout: 300
       ignore_errors: yes

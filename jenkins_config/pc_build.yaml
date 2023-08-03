@@ -34,3 +34,7 @@
       delay: 10
       until: build_status_result.json.result | default('') == "SUCCESS"
       ignore_errors: yes
+
+    - name: Print Access URL
+      debug:
+        msg: "PetClinic Deployed, access at http://localhost:8085"

@@ -1,0 +1,17 @@
+1. Compare Ansible with Chef and Saltstack
+    1.a List Pros & Cons with respect to deployment
+
+    Key Pros of Ansible versus Chef is the use of YAML for Ansible playbooks, which can be perceived as more intuitive and easier to learn. In addition, compared with both Chef/Saltstack, 
+    Ansible uses less resources as it does not rely on any clients/agents on the endpoints, and instead relies on the SSH protocol to communicate with hosts. With regard to deployment, 
+    Ansible might be a little faster due to a wide availability of playbooks, ease of readability, and no necessitity to plan out/deploy agents to endpoints. Conversely, some cons of 
+    Ansible also stem from its lack of agents. If an ssh connection gets interrupted/misconfigured, Ansible may no longer be able to communicate with that host until the SSH issue is
+    resolved. Chef/Saltstack's usage of agents/clients means that even if the SSH connection is interrupted, both Chef/Saltstack would have a persistent connection to the host to 
+    allow for further actions to be issued. Salt Also offers the flexibility to go agentless, but its performance will likely be degraded somewhat as a result. Both Salt/Chef accelerate in
+    environments looking to leverage IaC and managing scaling server environments.
+
+    1.b Explain Ansible playbook equivalent concept for both Chef & Saltstack 
+
+    The Ansible playbook equivalent concept for Chef is a "Chef Cookbook or Recipe" which allows administration a template based on the Chef Domain Specific Language, which is a configuation languge that builds 
+    upon Ruby. DSL offers a powerful solution to managing/deploying system configurations. The Saltstack equivalent to an Ansible playbook is it's ZeroMQ Messaging Library that facilitates continuous
+    connections between Salt Masters and Minions. Salt relies on an Eventbus which houses Salt's event library, and a a Reactor which is responsibile for executing actions in response to events on the
+    event bus.

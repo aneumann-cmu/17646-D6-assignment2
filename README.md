@@ -56,9 +56,9 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 ## Step 2. Build, Test, Install, and Execute PetClinic App ##
 Execute the following commands in a terminal window:  
 
-unzip 17646-D6-assignment1.zip  
+unzip 17646-D6-assignment2.zip  
 --OR--  
-git clone https://github.com/aneumann-cmu/17646-D6-assignment1.git  
+git clone https://github.com/aneumann-cmu/17646-D6-assignment2.git  
   
 cd 17646-D6-assignment1  
 sudo ./devops-pl.sh  
@@ -67,19 +67,23 @@ sudo ./devops-pl.sh
 The Jenkins CI job may be viewed in Jenkins by opening Firefox and going to http://localhost:8080
 
 ## Step 4. Open and View Sonarqube Analysis ##
-The Sonarqube SAST may be viewed in Sonarqube by opening Firefox and going to http://localhost:9000 and using Username: admin Password: Password to login
+The Sonarqube SAST may be viewed in Sonarqube by opening Firefox and going to http://localhost:9000 and using Username: admin + Password: password to login
 
 ## Step 5. Open and View PetClinic App ##
 The PetClinic App may be viewed by opening Firefox and going to http://localhost:8085  
 
 # Provisioning Scripts & Automated Shell Script
-devops-pl.sh, docker-compose.yml, Dockerfile, plugins.txt, casc.yml
+devops-pl.sh, docker-compose.yml, jenkins_config/Dockerfile, jenkins_config/plugins.txt, jenkins_config/casc.yaml, pc_config/Dockerfile, pc_service.sh
+
+# Ansible Playbooks & Job XML
+ansible_config/generate_ssh_keys.yaml, ansible_config/generate_authorized_keys.yaml, ansible_config/inventory.yaml, jenkins_config/deploy_jenkins.yaml, configure_jenkins.yaml,
+pc_deploy/pc_deploy.yaml, sonar_config/deploy_sonarqube.yaml, jenkins_config/pc_job.xml
 
 # Screenshot of Petclinic Welcome Screen
 screenshots/19. PETCLINIC_WELCOME.png
 
 # Journal  
-The most challenging part of this assignment was setting the application environment variables related to the credentials for login for SonarQube/Jenkins. In the end, I accomplished this using CURL posts directly to the application API and turning off a lot of each application's security. This likely would have been much easier to implement with some sort of token vault, but it would have required much more setup that was outside of the scope of an MVP. 
+The most challenging part of this assignment was setting up the SSH keys and deploying them on each host using automation. In the end, I accomplished this using a shared docker volume so that the containers could post/copy their ssh keys to/from a shared repository. This likely would have been much easier to implement with some sort of token vault, but it would have required much more setup that was outside of the scope of an MVP. 
 
 # Text Capture
 Relevant CLI Screenshots  1. CHANGE_DIRECTORY.png, 2. RUN_SCRIPT.png, 3. CREATING_CONTAINERS.png, 4. SETTING_UP_ENV.png, 9. JAR_DOWNLOAD.png, 10. PETCLINIC_DEPLOYED.png
