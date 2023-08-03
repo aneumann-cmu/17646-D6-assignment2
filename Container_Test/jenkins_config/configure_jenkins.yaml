@@ -1,43 +1,46 @@
----
-- name: Create Jenkins API token and secret text credential
+- name: Create Jenkins API token and secret text credential using curl
   hosts: localhost
   gather_facts: false
   vars:
     JENKINS_URL: "http://127.0.0.1:8080"
-    SONARQUBE_URL: "http://127.0.0.1:9000"
     JENKINS_USERNAME: "admin"
     JENKINS_PASSWORD: "password"
+    SONARQUBE_URL: "http://sonarqube:9000"
+    SONARQUBE_ADMIN_USERNAME: "admin"
+    SONARQUBE_ADMIN_PASSWORD: "password"
 
-  pre-tasks:
-    - name: Wait for SonarQube to be up
-      uri:
-        url: "{{ SONARQUBE_URL }}/api/system/status"
-      register: sonarqube_status
-      until: sonarqube_status.json.status == "UP"
-      retries: 60
-      delay: 10
-      when: sonarqube_status.status != 200
-
-    vars:
-      file: ../sonar_config/deploy_sonarqube.yaml
-  
   tasks:
-    - name: Create Jenkins secret text credential
-      uri:
-        url: "{{ JENKINS_URL }}/credentials/store/system/domain/_/createCredentials"
-        method: POST
-        user: "{{ JENKINS_USERNAME }}"
-        password: "{{ JENKINS_PASSWORD }}"
-        body_format: json
-        body:
-          '':
-            '0'
-          credentials:
-            scope: GLOBAL
-            id: "sonarqube-token"
-            secret: "{{ SONARQUBE_TOKEN }}"
-            description: "SonarQube User Token"
-            stapler-class: "org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl"
-            '$class': "org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl"
+    - name: Create SonarQube user token using shell
+      shell: |
+        SONARQUBE_TOKEN=$(curl -s -u "{{ SONARQUBE_ADMIN_USERNAME }}:{{ SONARQUBE_ADMIN_PASSWORD }}" -X POST "{{ SONARQUBE_URL }}/api/user_tokens/generate" \
+          -d "name=JenkinsTokenForSonarQube" \
+          -d "login=admin" \
+          -d "type=GLOBAL_ANALYSIS_TOKEN")
+        SONARQUBE_TOKEN=$(echo "$SONARQUBE_TOKEN" | grep -o '"token":"[^"]*' | cut -d'"' -f4)
+        echo "SONARQUBE_TOKEN=$SONARQUBE_TOKEN"
+      register: result_create_token
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Extract SonarQube Token
+      set_fact:
+        SONARQUBE_TOKEN: "{{ result_create_token.stdout_lines[0].split('=')[1] }}"
+      when: not result_create_token.failed
+
+    - name: Create Jenkins secret text credential using curl
+      shell: >
+        curl -X POST -u "{{ JENKINS_USERNAME }}:{{ JENKINS_PASSWORD }}" "{{ JENKINS_URL }}/credentials/store/system/domain/_/createCredentials" \
+          --data-urlencode "json={
+            '': '0',
+            'credentials': {
+              'scope': 'GLOBAL',
+              'id': 'sonarqube-token',
+              'secret': '{{ SONARQUBE_TOKEN }}',
+              'description': 'SonarQube User Token',
+              'stapler-class': 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl',
+              '\$class': 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl'
+            }
+          }"
       register: result_create_credential
-      failed_when: result_create_credential.status != 200
+      failed_when: result_create_credential.failed
+      when: not result_create_token.failed
