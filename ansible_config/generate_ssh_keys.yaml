@@ -2,16 +2,25 @@
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Set correct permissions for .ssh/config
-      file:
-        path: "/root/.ssh/config"
-        owner: root
-        group: root
-        mode: "0600"
-      delegate_to: localhost
-
     - name: Generate SSH key pair
       command: ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ""
+
+    - name: Create /root/.ssh/config file
+      blockinfile:
+        path: /root/.ssh/config
+        create: yes
+        block: |
+          Host *
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+
+    - name: Set correct permissions for /root/.ssh/config
+      file:
+        path: /root/.ssh/config
+        owner: root
+        group: root
+        mode: '0600'
 
     - name: Get the hostname
       shell: hostname

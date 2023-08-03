@@ -15,7 +15,6 @@ services:
       - ./sonar_config:/var/jenkins_home/sonar_config
       - ./jenkins_config:/var/jenkins_home/jenkins_config
       - ./ansible_config:/root/ansible_config
-      - ./ansible_config/config:/root/.ssh/config
       - ./pc_deploy:/root/pc_deploy
     networks:
       - devnet

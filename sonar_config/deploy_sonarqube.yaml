@@ -8,18 +8,13 @@
     SONARQUBE_ADMIN_PASSWORD: "password"
 
   tasks:
-    - name: Wait for SonarQube to be up
+    - name: Wait for SonarQube to be up, please standby...
       shell: "curl -sSf {{ SONARQUBE_URL }}/api/system/status"
       register: sonarqube_status
       retries: 20
       delay: 10
       until: sonarqube_status.rc == 0 and sonarqube_status.stdout | from_json | json_query('status') == 'UP'
       ignore_errors: yes
-
-    - name: Display SonarQube status message
-      debug:
-        msg: "Waiting for SonarQube to be up, please standby ({{ 20 - sonarqube_status.retries }} retries left)"
-      when: sonarqube_status is failed
 
     - name: Set SonarQube admin password using curl
       shell: >

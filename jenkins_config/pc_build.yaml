@@ -23,7 +23,7 @@
       delay: 10
       ignore_errors: yes
 
-    - name: Check build status
+    - name: Wait for build to complete, please standby...
       uri:
         url: "{{ JENKINS_URL }}/job/{{ JOB_NAME }}/lastBuild/api/json"
         user: "{{ JENKINS_USERNAME }}"
@@ -34,11 +34,6 @@
       delay: 10
       until: build_status_result.json.result | default('') == "SUCCESS"
       ignore_errors: yes
-
-    - name: Display build status message
-      debug:
-        msg: "Waiting for Build to Complete, please standby ({{ 60 - build_status_result.retries }} retries left)"
-      when: build_status_result is failed
 
     - name: Print Access URL
       debug:
